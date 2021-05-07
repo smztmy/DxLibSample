@@ -42,6 +42,9 @@ int WINAPI WinMain(
 	int X = GAME_WIDTH / 2;			//横の中心
 	int Y = GAME_HEIGHT / 2;		//縦の中心
 
+	int xx = GAME_WIDTH / 4;
+	int yy = GAME_HEIGHT / 4;
+
 	//四角の大きさを決める
 	int width = 32;			//幅
 	int height = 32;		//高さ
@@ -53,6 +56,10 @@ int WINAPI WinMain(
 	int Speed = 1;
 	int XSpeed = Speed;
 	int YSpeed = Speed;
+
+	int speed = 2;
+	int xspeed = speed;
+	int yspeed = speed;
 
 	//ダブルバッファリング有効化
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -89,15 +96,17 @@ int WINAPI WinMain(
 		);
 
 		DrawCircle(
-			X, Y, radius,
+			xx, yy, radius,
 			GetColor(255, 0, 0),
 			TRUE
 		);
 
 		X += XSpeed;		//四角の位置を右にずらす
+		xx += xspeed;
 
 		//①四角を斜め右下
 		Y += YSpeed;
+		yy += yspeed;
 
 		//②四角を画面の端に来たら、移動する向きを反転
 		if (X - radius < 0 || X + radius > GAME_WIDTH)		//画面が横から出たとき
@@ -118,6 +127,26 @@ int WINAPI WinMain(
 			//壁に当たったら速くなる
 			if (YSpeed > 0) { YSpeed += 2; }
 			else if (YSpeed < 0) { YSpeed -= 2; }
+		}
+
+		if (xx - radius < 0 || xx + radius > GAME_WIDTH)		//画面が横から出たとき
+		{
+			//+1 なら、-1する/ -1ならば、+1にする
+			xspeed = -xspeed;	//移動する向きを反転
+
+			//壁に当たったら速くなる
+			if (xspeed > 0) { xspeed += 1; }
+			else if (xspeed < 0) { xspeed -= 1; }
+		}
+
+		if (yy - radius < 0 || yy + radius > GAME_HEIGHT)		//画面が横から出たとき
+		{
+			//+1 なら、-1する/ -1ならば、+1にする
+			yspeed = -yspeed;	//移動する向きを反転
+
+			//壁に当たったら速くなる
+			if (yspeed > 0) { yspeed += 1; }
+			else if (yspeed < 0) { yspeed -= 1; }
 		}
 		
 		ScreenFlip();	//ダブルバッファリングした画面を描画
