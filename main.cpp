@@ -1,6 +1,8 @@
 //ヘッダーファイルの読み込み
 #include "DxLib.h"		//DxLibを使う時は必要
 
+#include "keyboard.h"	//キーボードの処理
+
 //マクロ定義
 #define GAME_TITLE  "ゲームタイトル"	//ゲームタイトル
 #define GAME_WIDTH  1280				//ゲーム画面の幅
@@ -31,17 +33,23 @@ int WINAPI WinMain(
 	SetWaitVSyncFlag(TRUE);								//ディスプレイの垂直同期を有効にする
 	SetAlwaysRunFlag(TRUE);								//ウィンドウをずっとアクティブにする
 
-
 	// ＤＸライブラリ初期化処理
 	if (DxLib_Init() == -1)		
 	{
 		return -1;			// エラーが起きたら直ちに終了
 	}
 
-	
-
 	//ダブルバッファリング有効化
 	SetDrawScreen(DX_SCREEN_BACK);
+
+	//円の中心点
+	int X = GAME_WIDTH / 2;
+	int Y = GAME_HEIGHT / 2;
+
+	/*int x = GAME_WIDTH / 4;
+	int y = GAME_HEIGHT / 4;*/
+	//円の半径
+	int radius = 50;
 
 	//無限ループ
 	while (1)
@@ -50,8 +58,47 @@ int WINAPI WinMain(
 		if (ProcessMessage() != 0)	{ break; }	//メッセージを受け取り続ける
 		if (ClearDrawScreen() != 0) { break; }	//画面を消去する
 
+		//キーボード入力の更新
+		AllKeyUpdate();
 
+		//キー入力
+		if (KeyDown(KEY_INPUT_UP) == TRUE)
+		{
+			Y--;	//上に移動
+		}
+		if (KeyDown(KEY_INPUT_DOWN) == TRUE)
+		{
+			Y++;	//下に移動
+		}
+		if (KeyDown(KEY_INPUT_LEFT) == TRUE)
+		{
+			X--;	//左に移動
+		}
+		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
+		{
+			X++;	//右に移動
+		}
 
+		/*if (KeyDown(KEY_INPUT_UP) == TRUE)
+		{
+			y--;	//上に移動
+		}
+		if (KeyDown(KEY_INPUT_DOWN) == TRUE)
+		{
+			y++;	//下に移動
+		}
+		if (KeyDown(KEY_INPUT_LEFT) == TRUE)
+		{
+			x--;	//左に移動
+		}
+		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
+		{
+			x++;	//右に移動
+		}*/
+
+		DrawCircle(X, Y, radius, GetColor(255, 255, 0), TRUE);
+
+		/*DrawCircle(x, y, radius, GetColor(255, 255, 0), TRUE);*/
 		
 		ScreenFlip();	//ダブルバッファリングした画面を描画
 	}
