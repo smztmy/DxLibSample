@@ -1,7 +1,7 @@
 //ヘッダーファイルの読み込み
 #include "DxLib.h"		//DxLibを使う時は必要
-
 #include "keyboard.h"	//キーボードの処理
+#include "FPS.h"		//FPSの処理
 
 //マクロ定義
 #define GAME_TITLE  "ゲームタイトル"	//ゲームタイトル
@@ -97,8 +97,14 @@ int WINAPI WinMain(
 	int X = GAME_WIDTH / 2;
 	int Y = GAME_HEIGHT / 2;
 
-	/*int x = GAME_WIDTH / 4;
-	int y = GAME_HEIGHT / 4;*/
+	int x = GAME_WIDTH / 4;
+	int y = GAME_HEIGHT / 4;
+
+	int width = 64;
+	int height = 64;
+
+	/*int xx = GAME_WIDTH / 8;
+	int yy = GAME_HEIGHT / 8;*/
 	//円の半径
 	int radius = 50;
 
@@ -114,6 +120,9 @@ int WINAPI WinMain(
 
 		//キーボード入力の更新
 		AllKeyUpdate();
+
+		//FPS値の更新
+		FPSUpdate();
 
 		//ESCキーで強制終了
 		if (KeyClick(KEY_INPUT_ESCAPE) == TRUE) { break; }
@@ -172,7 +181,7 @@ int WINAPI WinMain(
 			X++;	//右に移動
 		}
 
-		/*if (KeyDown(KEY_INPUT_UP) == TRUE)
+		if (KeyDown(KEY_INPUT_UP) == TRUE)
 		{
 			y--;	//上に移動
 		}
@@ -187,11 +196,36 @@ int WINAPI WinMain(
 		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
 		{
 			x++;	//右に移動
+		}
+
+		/*if (KeyDown(KEY_INPUT_UP) == TRUE)
+		{
+			yy--;	//上に移動
+		}
+		if (KeyDown(KEY_INPUT_DOWN) == TRUE)
+		{
+			yy++;	//下に移動
+		}
+		if (KeyDown(KEY_INPUT_LEFT) == TRUE)
+		{
+			xx--;	//左に移動
+		}
+		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
+		{
+			xx++;	//右に移動
 		}*/
 
 		DrawCircle(X, Y, radius, GetColor(255, 255, 0), TRUE);
 
-		/*DrawCircle(x, y, radius, GetColor(255, 255, 0), TRUE);*/
+		DrawCircle(x, y, radius, GetColor(255, 255, 0), TRUE);
+
+		/*DrawBox(xx, yy, xx+width,yy+height, GetColor(255, 0, 255), TRUE);*/
+
+		//FPS値を描画
+		FPSDraw();
+
+		//FPS値を待つ
+		FPSWait();
 		
 		ScreenFlip();	//ダブルバッファリングした画面を描画
 	}
@@ -427,5 +461,6 @@ VOID ChangeDraw(VOID)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	DrawString(0, 0, "切り替え画面", GetColor(0, 0, 0));
+
 	return;
 }
