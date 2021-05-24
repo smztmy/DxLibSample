@@ -11,6 +11,7 @@ struct CHARACTOR
 {
 	int handle = -1;		//画像のハンドル（管理番号）
 	char path[255];			//画像の場所
+
 	int x;					//X位置
 	int y;					//Y位置
 	int width;				//幅
@@ -68,6 +69,8 @@ VOID ChangeDraw(VOID);	//切り替え画面の描画
 
 VOID ChangeScene(GAME_SCENE scene);	//シーン切り替え
 
+VOID CollUpdate(CHARACTOR* chara);	//当たり判定の領域を更新
+
 // プログラムは WinMain から始まります
 //Windowsのプログラミング方法 = (WinAPI)で動いている
 //DxLibは、DirectXという、ゲームプログラミングを簡単に使える仕組み
@@ -97,25 +100,13 @@ int WINAPI WinMain(
 	//ダブルバッファリング有効化
 	SetDrawScreen(DX_SCREEN_BACK);
 
-
-
-	/*int x = GAME_WIDTH / 4;
-	int y = GAME_HEIGHT / 4;*/
-
-	/*int width = 64;
-	int height = 64;*/
-
-	/*int xx = GAME_WIDTH / 8;
-	int yy = GAME_HEIGHT / 8;*/
-
-
 	//最初のシーンは、タイトル画面から
 	GameScene = GAME_SCENE_TITLE;
 
 	//ゲーム全体の初期化
 
 	//プレイヤーの画像を読み込み
-	strcpyDx(player.path, ".\\.\\image\\Player.png");		//パスのコピー
+	strcpyDx(player.path, ".\\Image\\Player.png");		//パスのコピー
 	player.handle = LoadGraph(player.path);				//画像の読み込み
 
 	//画像が読み込めなかったときは、エラー(-1)が入る
@@ -135,17 +126,19 @@ int WINAPI WinMain(
 	//画像の幅と高さを取得
 	GetGraphSize(player.handle, &player.width, &player.height);
 
+	//当たり判定を更新する
+	CollUpdate(&player);		//プレイヤーの当たり判定のアドレス
+
 	//プレイヤーを初期化
 	player.x = GAME_WIDTH / 2 - player.width / 2;		//中央寄せ
-	player.x = GAME_HEIGHT / 2 - player.height / 2;		//中央寄せ
+	player.y = GAME_HEIGHT / 2 - player.height / 2;		//中央寄せ
 	player.speed = 5;
 	player.IsDraw = TRUE;	//描画できる
 
 	//無限ループ
 	while (1)
 	{
-		
-		if (ProcessMessage() != 0)	{ break; }	//メッセージを受け取り続ける
+		if (ProcessMessage() != 0) { break; }	//メッセージを受け取り続ける
 		if (ClearDrawScreen() != 0) { break; }	//画面を消去する
 
 		//キーボード入力の更新
@@ -193,47 +186,6 @@ int WINAPI WinMain(
 			}
 		}
 
-
-
-		/*if (KeyDown(KEY_INPUT_UP) == TRUE)
-		{
-			y--;	//上に移動
-		}
-		if (KeyDown(KEY_INPUT_DOWN) == TRUE)
-		{
-			y++;	//下に移動
-		}
-		if (KeyDown(KEY_INPUT_LEFT) == TRUE)
-		{
-			x--;	//左に移動
-		}
-		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
-		{
-			x++;	//右に移動
-		}*/
-
-		/*if (KeyDown(KEY_INPUT_UP) == TRUE)
-		{
-			yy--;	//上に移動
-		}
-		if (KeyDown(KEY_INPUT_DOWN) == TRUE)
-		{
-			yy++;	//下に移動
-		}
-		if (KeyDown(KEY_INPUT_LEFT) == TRUE)
-		{
-			xx--;	//左に移動
-		}
-		if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
-		{
-			xx++;	//右に移動
-		}*/
-
-
-		/*DrawCircle(x, y, radius, GetColor(255, 255, 0), TRUE);*/
-
-		/*DrawBox(xx, yy, xx+width,yy+height, GetColor(255, 0, 255), TRUE);*/
-
 		//FPS値を描画
 		FPSDraw();
 
@@ -255,12 +207,12 @@ int WINAPI WinMain(
 /// <summary>
 /// シーンを切り替える関数
 /// </summary>
-/// <param name="scene"></param>
-VOID ChangeScene (GAME_SCENE scene)
+/// <param name="scene">シーン</param>
+VOID ChangeScene(GAME_SCENE scene)
 {
 	GameScene = scene;	//シーンを切り替え
-	IsFadeIn = FALSE;				//フェードインしない
-	IsFadeOut = TRUE;				//フェードアウトする
+	IsFadeIn = FALSE;	//フェードインしない
+	IsFadeOut = TRUE;	//フェードアウトする
 
 	return;
 }
@@ -281,6 +233,7 @@ VOID Title(VOID)
 /// </summary>
 VOID TitleProc(VOID)
 {
+
 	if (KeyClick(KEY_INPUT_RETURN) == TRUE)
 	{
 		//シーン切り替え
@@ -298,6 +251,7 @@ VOID TitleProc(VOID)
 /// </summary>
 VOID TitleDraw(VOID)
 {
+
 	DrawString(0, 0, "タイトル画面", GetColor(0, 0, 0));
 	return;
 }
@@ -307,8 +261,8 @@ VOID TitleDraw(VOID)
 /// </summary>
 VOID Play(VOID)
 {
-	PlayProc();
-	PlayDraw();
+	PlayProc();	//処理
+	PlayDraw();	//描画
 
 	return;
 }
@@ -327,6 +281,30 @@ VOID PlayProc(VOID)
 		ChangeScene(GAME_SCENE_END);
 	}
 
+	//プレイヤーの操作
+	if (KeyDown(KEY_INPUT_UP) == TRUE)
+	{
+		player.y -= player.speed;
+	}
+
+	if (KeyDown(KEY_INPUT_DOWN) == TRUE)
+	{
+		player.y += player.speed;
+	}
+
+	if (KeyDown(KEY_INPUT_LEFT) == TRUE)
+	{
+		player.x -= player.speed;
+	}
+
+	if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
+	{
+		player.x += player.speed;
+	}
+
+	//当たり判定を更新する
+	CollUpdate(&player);
+
 	return;
 }
 
@@ -340,7 +318,16 @@ VOID PlayDraw(VOID)
 	{
 		//画像を描画
 		DrawGraph(player.x, player.y, player.handle, TRUE);
+
+		//デバッグの時は、当たり判定の領域を描画
+		if (GAME_DEBUG == TRUE)
+		{
+			//四角を描画
+			DrawBox(player.coll.left, player.coll.top, player.coll.right, player.coll.bottom,
+				GetColor(255, 0, 0), FALSE);
+		}
 	}
+
 	DrawString(0, 0, "プレイ画面", GetColor(0, 0, 0));
 	return;
 }
@@ -350,8 +337,8 @@ VOID PlayDraw(VOID)
 /// </summary>
 VOID End(VOID)
 {
-	EndProc();
-	EndDraw();
+	EndProc();	//処理
+	EndDraw();	//描画
 
 	return;
 }
@@ -427,7 +414,7 @@ VOID ChangeProc(VOID)
 			//フェードアウト処理が終わった
 
 			fadeOutCnt = fadeOutCntInit;	//カウンタを初期化
-			IsFadeIn = FALSE;				//フェードアウト処理終了
+			IsFadeOut = FALSE;				//フェードアウト処理終了
 		}
 	}
 
@@ -438,6 +425,7 @@ VOID ChangeProc(VOID)
 		GameScene = NextGameScene;		//次のシーンに切り替え
 		OldGameScene = GameScene;		//以前のゲームシーン更新
 	}
+
 
 	return;
 }
@@ -482,6 +470,20 @@ VOID ChangeDraw(VOID)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	DrawString(0, 0, "切り替え画面", GetColor(0, 0, 0));
+
+	return;
+}
+
+/// <summary>
+/// 当たり判定の領域判定
+/// </summary>
+/// <param name="chara">当たり判定の領域</param>
+VOID CollUpdate(CHARACTOR* chara)
+{
+	chara->coll.left = chara->x + 84;
+	chara->coll.top = chara->y + 4;
+	chara->coll.right = chara->x + chara->width - 85;
+	chara->coll.bottom = chara->y + chara->height - 6;
 
 	return;
 }

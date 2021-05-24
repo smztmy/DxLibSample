@@ -11,11 +11,11 @@
 #define GAME_HEIGHT 720					//ゲーム画面の高さ
 #define GAME_COLOR  32					//ゲーム画面の色域
 
-#define GAME_ICON_ID	333				//ゲームのICOのID
+#define GAME_ICON_ID  333				//ゲームのICOのID
 
-#define GAME_WINDOW_BAR	0				//ウィンドウバーの種類
+#define GAME_WINDOW_BAR  0				//ウィンドウバーの種類
 
-#define GAME_DEBUG	TRUE				//デバッグモード
+#define GAME_DEBUG  TRUE				//デバッグモード
 
 //列挙型
 enum GAME_SCENE {
