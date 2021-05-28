@@ -75,6 +75,8 @@ VOID ChangeScene(GAME_SCENE scene);	//シーン切り替え
 VOID CollUpdatePlayer(CHARACTOR* chara);	//当たり判定の領域を更新
 VOID CollUpdate(CHARACTOR* chara);			//当たり判定
 
+BOOL OnCollRect(RECT a, RECT b);			//矩形と矩形の当たり判定
+
 // プログラムは WinMain から始まります
 //Windowsのプログラミング方法 = (WinAPI)で動いている
 //DxLibは、DirectXという、ゲームプログラミングを簡単に使える仕組み
@@ -130,14 +132,14 @@ int WINAPI WinMain(
 	//画像の幅と高さを取得
 	GetGraphSize(player.handle, &player.width, &player.height);
 
-	//当たり判定を更新する
-	CollUpdatePlayer(&player);		//プレイヤーの当たり判定のアドレス
-
 	//プレイヤーを初期化
 	player.x = GAME_WIDTH / 2 - player.width / 2;		//中央寄せ
 	player.y = GAME_HEIGHT / 2 - player.height / 2;		//中央寄せ
 	player.speed = 500;
 	player.IsDraw = TRUE;	//描画できる
+
+		//当たり判定を更新する
+	CollUpdatePlayer(&player);		//プレイヤーの当たり判定のアドレス
 
 	//ゴールの画像を読み込み
 	strcpyDx(Goal.path, ".\\Image\\goal.png");		//パスのコピー
@@ -160,14 +162,14 @@ int WINAPI WinMain(
 	//画像の幅と高さを取得
 	GetGraphSize(Goal.handle, &Goal.width, &Goal.height);
 
-	//当たり判定を更新する
-	CollUpdate(&Goal);		//プレイヤーの当たり判定のアドレス
-
 	//ゴールを初期化
 	Goal.x = GAME_WIDTH - Goal.width;		//中央寄せ
 	Goal.y = 0;		//中央寄せ
 	Goal.speed = 500;
 	Goal.IsDraw = TRUE;	//描画できる
+
+	//当たり判定を更新する
+	CollUpdate(&Goal);		//プレイヤーの当たり判定のアドレス
 
 	//無限ループ
 	while (1)
@@ -307,6 +309,7 @@ VOID Play(VOID)
 /// </summary>
 VOID PlayProc(VOID)
 {
+	/*
 	if (KeyClick(KEY_INPUT_RETURN) == TRUE)
 	{
 		//シーン切り替え
@@ -315,6 +318,7 @@ VOID PlayProc(VOID)
 		//エンド画面に切り替え
 		ChangeScene(GAME_SCENE_END);
 	}
+	*/
 
 	//プレイヤーの操作
 	if (KeyDown(KEY_INPUT_UP) == TRUE)
@@ -339,6 +343,19 @@ VOID PlayProc(VOID)
 
 	//当たり判定を更新する
 	CollUpdatePlayer(&player);
+
+	//ゴールの当たり判定を更新する
+	CollUpdate(&Goal);
+
+	//プレイヤーがゴールに当たった時
+	if (OnCollRect(player.coll, Goal.coll) == TRUE)
+	{
+		//エンド画面に切り替え
+		ChangeScene(GAME_SCENE_END);
+		
+		//処理を強制終了
+		return;
+	}
 
 	return;
 }
@@ -550,4 +567,29 @@ VOID CollUpdate(CHARACTOR* chara)
 	chara->coll.bottom = chara->y + chara->height;
 
 	return;
+}
+
+/// <summary>
+/// 矩形と矩形の当たり判定
+/// </summary>
+/// <param name="a">矩形A</param>
+/// <param name="b">矩形B</param>
+/// <returns>当たったらTURE／当たらなかったらFALSE</returns>
+BOOL OnCollRect(RECT a, RECT b)
+{
+	if(
+		a.left < b.right &&
+		a.right > b.left &&
+		a.top < b.bottom &&
+		a.bottom > b.top 
+		)
+	{
+		//当たっているとき
+		return TRUE;
+	}
+	else
+	{
+		//当たっていないとき
+		return FALSE;
+	}
 }
