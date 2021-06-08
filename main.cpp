@@ -67,6 +67,9 @@ AUDIO TitleBGM;
 AUDIO PlayBGM;
 AUDIO EndBGM;
 
+//効果音
+AUDIO PlayerSE;
+
 //画面の切り替え
 BOOL IsFadeOut = FALSE;		//フェードアウト
 BOOL IsFadeIn = FALSE;		//フェードイン
@@ -226,6 +229,8 @@ int WINAPI WinMain(
 	DeleteSoundMem(PlayBGM.handle);		//音楽をメモリ上から削除
 	DeleteSoundMem(EndBGM.handle);		//音楽をメモリ上から削除
 
+	DeleteSoundMem(PlayerSE.handle);		//音楽をメモリ上から削除
+
 	// ＤＸライブラリ使用の終了処理
 	DxLib_End();
 
@@ -359,7 +364,27 @@ int WINAPI WinMain(
 			return FALSE;
 		}
 
-		EndBGM.playType = DX_PLAYTYPE_LOOP;
+		PlayBGM.playType = DX_PLAYTYPE_LOOP;
+		PlayBGM.Volume = 255;
+
+		//効果音を読み込み
+		strcpyDx(PlayerSE.path, ".\\Audio\\エネルギーをためる（ロックマン風）.mp3");		//パスのコピー
+		PlayerSE.handle = LoadSoundMem(PlayerSE.path);
+
+		//音楽が読み込めなかったときは、エラー(-1)が入る
+		if (PlayerSE.handle == -1)
+		{
+			MessageBox(
+				GetMainWindowHandle(),		//メインのウィンドウハンドル
+				PlayerSE.path,				//メッセージ本文
+				"音楽読み込みエラー！",		//メッセージタイトル
+				MB_OK						//ボタン
+			);
+
+			return FALSE;
+		}
+
+		EndBGM.playType = DX_PLAYTYPE_BACK;
 		EndBGM.Volume = 255;
 		
 		return TRUE;
@@ -495,21 +520,46 @@ VOID PlayProc(VOID)
 	if (KeyDown(KEY_INPUT_UP) == TRUE)
 	{
 		player.y -= player.speed * fps.DaltaTime;
+
+		//動く時の効果音を追加
+		if (CheckSoundMem(PlayerSE.handle) == 0)
+		{
+			PlaySoundMem(PlayerSE.handle, PlayerSE.playType);
+		}
 	}
 
 	if (KeyDown(KEY_INPUT_DOWN) == TRUE)
 	{
 		player.y += player.speed * fps.DaltaTime;
+
+		//動く時の効果音を追加
+		if (CheckSoundMem(PlayerSE.handle) == 0)
+		{
+			PlaySoundMem(PlayerSE.handle, PlayerSE.playType);
+		}
+
 	}
 
 	if (KeyDown(KEY_INPUT_LEFT) == TRUE)
 	{
 		player.x -= player.speed * fps.DaltaTime;
+
+		//動く時の効果音を追加
+		if (CheckSoundMem(PlayerSE.handle) == 0)
+		{
+			PlaySoundMem(PlayerSE.handle, PlayerSE.playType);
+		}
 	}
 
 	if (KeyDown(KEY_INPUT_RIGHT) == TRUE)
 	{
 		player.x += player.speed * fps.DaltaTime;
+
+		//動く時の効果音を追加
+		if (CheckSoundMem(PlayerSE.handle) == 0)
+		{
+			PlaySoundMem(PlayerSE.handle, PlayerSE.playType);
+		}
 	}
 
 	//当たり判定を更新する
