@@ -72,6 +72,8 @@ CHARACTOR Goal;
 IMAGE TitleLogo;	//タイトルロゴ
 IMAGE TitleEnter;	//エンターキーを押してね
 IMAGE EndClear;		//クリアロゴ
+IMAGE TitleBackground;
+IMAGE EndBackground;
 
 //音楽
 AUDIO TitleBGM;
@@ -221,8 +223,8 @@ int WINAPI WinMain(
 	}
 	//終わるときの処理
 	DeleteGraph(playMovie.handle);		//動画をメモリ上から削除
-	DeleteGraph(player.img.handle);			//画像をメモリ上から削除
-	DeleteGraph(Goal.img.handle);			//画像をメモリ上から削除
+	DeleteGraph(player.img.handle);		//画像をメモリ上から削除
+	DeleteGraph(Goal.img.handle);		//画像をメモリ上から削除
 	DeleteSoundMem(TitleBGM.handle);	//音楽をメモリ上から削除
 	DeleteSoundMem(PlayBGM.handle);		//音楽をメモリ上から削除
 	DeleteSoundMem(EndBGM.handle);		//音楽をメモリ上から削除
@@ -266,6 +268,10 @@ BOOL GameLoad(VOID)
 	//画像を読み込み
 	if (!LoadImageMem(&player.img, ".\\Image\\player.\png")) { return FALSE; }
 	if (!LoadImageMem(&Goal.img, ".\\Image\\goal.\png")) { return FALSE; }
+
+	//背景を読み込む
+	if (!LoadImageMem(&TitleBackground, ".\\Image\\イラスト.\png")) { return FALSE; }
+	if (!LoadImageMem(&EndBackground, ".\\Image\\宇宙.\png")) { return FALSE; }
 
 	//ロゴを読み込む
 	if (!LoadImageMem(&TitleLogo, ".\\Image\\タイトルロゴ.\png")) { return FALSE; }
@@ -450,12 +456,14 @@ VOID TitleDraw(VOID)
 		if (PushEnterBrink == TRUE)
 		{
 			//PushEnterの描画
-			DrawGraph(TitleEnter.x,TitleEnter.y, TitleEnter.handle, FALSE);
+			DrawGraph(TitleEnter.x,TitleEnter.y, TitleEnter.handle, TRUE);
 		}
 
 	//PushEnterの描画
-		DrawGraph(TitleEnter.x, TitleEnter.y, TitleEnter.handle, TRUE);
+		//DrawGraph(TitleEnter.x, TitleEnter.y, TitleEnter.handle, TRUE);
 
+		DrawGraph(TitleBackground.x, TitleBackground.y, TitleBackground.handle, FALSE);
+		DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, TitleBackground.handle, FALSE);
 
 	DrawString(0, 0, "タイトル画面", GetColor(0, 0, 0));
 	return;
@@ -637,6 +645,9 @@ VOID EndDraw(VOID)
 {
 	//EndClearの描画
 	DrawGraph(EndClear.x, EndClear.y, EndClear.handle, TRUE);
+
+	DrawGraph(EndBackground.x, EndBackground.y, EndBackground.handle, FALSE);
+	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, EndBackground.handle, FALSE);
 
 	DrawString(0, 0, "エンド画面", GetColor(0, 0, 0));
 	return;
